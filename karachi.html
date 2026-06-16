@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urban Acoustic Stress Map — Saad Memon</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+.sm-back-bar{position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:44px;background:rgba(8,8,16,0.92);backdrop-filter:blur(10px);border-bottom:0.5px solid #1a1a28;}
+.sm-back-bar a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#3ab8a0;text-decoration:none;letter-spacing:0.08em;display:flex;align-items:center;gap:6px;}
+.sm-back-bar a:hover{color:#6dd4c8;}
+.sm-back-bar span{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#3e3e52;letter-spacing:0.08em;}
+body{padding-top:44px;}
+</style>
+<div class="sm-back-bar">
+  <a href="index.html">← SM// portfolio</a>
+  <span>urban acoustic stress map</span>
+</div>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080810;--bg2:#0d0d18;--bg3:#12121e;--grid:#1a1a28;--border:#242436;
+  --dim:#3e3e52;--muted:#5a5a72;--body:#8a8aaa;--accent:#c8d8d0;--hi:#e4f0ec;
+  --amber:#c8a040;--teal:#3ab8a0;--coral:#e06858;--blue:#4a9ac8;--green:#5aaa6a;--purple:#b858c8;
+  --mono:'IBM Plex Mono',monospace;
+}
+html,body{background:var(--bg);color:var(--accent);font-family:var(--mono);min-height:100vh;overflow-x:hidden}
+.header{display:grid;grid-template-columns:1fr auto;align-items:center;padding:14px 20px 12px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:baseline;gap:14px}
+.title{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.subtitle{font-size:12px;color:var(--accent);letter-spacing:.04em}
+.header-right{display:flex;align-items:center;gap:16px}
+.wx-badge{font-size:9px;color:var(--muted);letter-spacing:.06em}
+.sky-strip{width:40px;height:10px;border-radius:2px;transition:background 1.2s}
+.time-bar{display:flex;align-items:center;gap:10px;padding:8px 20px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.tl{font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);white-space:nowrap}
+#time-slider{flex:1;accent-color:var(--teal);height:2px;cursor:pointer}
+.tv{font-size:13px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--amber);min-width:44px}
+.period{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;min-width:80px}
+.sound-btn{font-family:var(--mono);font-size:9px;letter-spacing:.1em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 10px;cursor:pointer;text-transform:uppercase;transition:all .15s}
+.sound-btn:hover{border-color:var(--teal);color:var(--teal)}
+.sound-btn.active{border-color:var(--teal);color:var(--teal);background:#0d2420}
+.district-nav{display:flex;gap:0;padding:0 20px;border-bottom:1px solid var(--border);background:var(--bg);overflow-x:auto}
+.dn-btn{font-family:var(--mono);font-size:8px;letter-spacing:.1em;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);padding:8px 12px;cursor:pointer;text-transform:uppercase;white-space:nowrap;transition:all .15s}
+.dn-btn:hover{color:var(--accent)}
+.dn-btn.active{color:var(--hi);border-bottom-color:var(--dc,var(--teal))}
+.grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:20px}
+.panel{background:var(--bg2);padding:14px;min-height:220px;position:relative;overflow:hidden}
+.panel-label{font-size:8px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.panel-label .pn{color:var(--muted)}
+.panel.span2{grid-column:span 2}
+.panel.span3{grid-column:span 3}
+.panel.tall{min-height:300px}
+svg.citymap{width:100%;height:220px;display:block}
+.mapnode{cursor:pointer}
+.mapnode circle.ring{fill:none;stroke-width:1;opacity:.18}
+.mapnode circle.dot{transition:r .3s}
+.mapnode text{font-family:var(--mono);font-size:7.5px;fill:var(--muted)}
+.mapnode.active text{fill:var(--hi)}
+.mapnode.active circle.ring{opacity:.5}
+.conn-l{stroke:var(--grid);stroke-width:.7;fill:none;stroke-dasharray:2 4}
+.dp-name{font-size:16px;font-weight:600;letter-spacing:.06em;margin-bottom:2px}
+.dp-tag{font-size:9px;color:var(--muted);margin-bottom:12px;line-height:1.6}
+.dp-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.dp-cell{background:var(--bg3);padding:8px;border:1px solid var(--grid)}
+.dp-cl{font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.dp-cv{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.dp-sources{font-size:8px;color:var(--body);line-height:1.9}
+.src-badge{font-size:8px;padding:2px 5px;margin-right:4px}
+.src-m{background:#122012;color:#5aaa6a}
+.src-e{background:#201a08;color:#c8a040}
+.chart-wrap{position:relative;height:140px;margin-top:6px}
+.chart-bars{display:flex;align-items:flex-end;gap:1px;height:100%}
+.tb{flex:1;border-radius:1px 1px 0 0;cursor:pointer;transition:opacity .2s}
+.tb:hover{opacity:.8}
+.chart-x{display:flex;gap:1px;margin-top:3px}
+.cx{flex:1;font-size:6px;color:var(--dim);text-align:center}
+.rank-list{display:flex;flex-direction:column;gap:4px}
+.rank-row{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--grid);cursor:pointer}
+.rank-row:last-child{border:none}
+.rank-n{font-size:8px;color:var(--dim);width:14px;text-align:right}
+.rank-bar-wrap{flex:1;height:4px;background:var(--grid)}
+.rank-bar{height:100%;transition:width .5s}
+.rank-name{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);min-width:52px}
+.rank-row.active .rank-name{color:var(--hi)}
+.rank-db{font-size:9px;font-weight:600;font-variant-numeric:tabular-nums;min-width:30px;text-align:right}
+.rank-src{font-size:7px;width:10px}
+canvas#wave{width:100%;height:120px;display:block}
+.wave-meta{display:flex;gap:14px;margin-top:8px}
+.wm-item{font-size:8px;color:var(--muted)}
+.wm-val{color:var(--accent)}
+canvas#dbcurve{width:100%;height:130px;display:block}
+.vmix{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.vm-row{display:flex;align-items:center;gap:8px}
+.vm-label{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;min-width:72px}
+.vm-bar-wrap{flex:1;height:6px;background:var(--grid)}
+.vm-bar{height:100%;border-radius:1px}
+.vm-pct{font-size:8px;font-variant-numeric:tabular-nums;min-width:28px;text-align:right;color:var(--body)}
+.vm-db{font-size:8px;color:var(--muted);min-width:44px;text-align:right}
+canvas#spec{width:100%;height:100px;display:block;image-rendering:pixelated}
+.spec-axis{display:flex;justify-content:space-between;font-size:7px;color:var(--dim);margin-top:2px}
+.cit-list{display:flex;flex-direction:column;gap:8px}
+.cit{font-size:8px;color:var(--body);line-height:1.7;padding-left:10px;border-left:2px solid var(--dim)}
+.cit strong{color:var(--accent);font-weight:500}
+.cit .year{color:var(--amber)}
+.footer{padding:12px 20px;border-top:1px solid var(--border);font-size:8px;color:var(--dim);letter-spacing:.06em;display:flex;gap:20px;flex-wrap:wrap}
+.foot-badge{padding:2px 6px;border:1px solid var(--dim);color:var(--muted)}
+
+/* ── JOURNEY PANEL P10 ── */
+.panel.journey{background:var(--bg);padding:0;overflow:hidden;min-height:260px}
+#jp-header{padding:10px 14px 0}
+#journey-sky{height:68px;display:flex;justify-content:space-between;align-items:flex-end;padding:0 14px 10px;transition:background 1s}
+#jsky-l{display:flex;flex-direction:column;gap:2px}
+#jsky-time{font-size:20px;font-weight:300;font-variant-numeric:tabular-nums;letter-spacing:.04em;transition:color .8s}
+#jsky-period{font-size:7px;letter-spacing:.16em;text-transform:uppercase;transition:color .8s}
+#jsky-r{text-align:right}
+#jsky-district{font-size:11px;font-weight:300;letter-spacing:.04em;transition:color .8s}
+#jsky-desc{font-size:7px;letter-spacing:.05em;margin-top:2px;transition:color .8s;max-width:240px}
+#journey-road{position:relative;height:80px;overflow:hidden;transition:background .8s}
+canvas#jrc{position:absolute;top:0;left:0;display:block;width:100%;height:100%}
+#journey-layers{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border)}
+.jly{padding:5px 8px 5px;cursor:pointer;transition:opacity .15s;border-right:1px solid var(--border)}
+.jly:last-child{border-right:none}
+.jly.off{opacity:.18}
+.jlk{font-size:6px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:1px}
+.jlv{font-size:8px;color:var(--muted);font-variant-numeric:tabular-nums}
+.jlbar{height:1px;margin-top:2px;background:var(--grid)}
+.jlfill{height:1px;transition:width .2s}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <span class="title">Karachi Urban Acoustic Stress Map</span>
+    <span class="subtitle">PhD Portfolio · Urban Sound Studies</span>
+  </div>
+  <div class="header-right">
+    <span class="wx-badge">86°F · Clear · Karachi</span>
+    <div class="sky-strip" id="sky-strip"></div>
+  </div>
+</div>
+
+<div class="time-bar">
+  <span class="tl">Time</span>
+  <input type="range" id="time-slider" min="0" max="23" value="14" step="1">
+  <span class="tv" id="tv">14:00</span>
+  <span class="period" id="period-lbl">AFTERNOON</span>
+  <button class="sound-btn" id="sound-btn" onclick="toggleSound()">&#9654; Sound On</button>
+  <button class="sound-btn" onclick="stepTime(-1)">&#9664;</button>
+  <button class="sound-btn" onclick="stepTime(1)">&#9654;</button>
+</div>
+
+<div class="district-nav" id="dist-nav"></div>
+
+<div class="grid9">
+
+  <div class="panel tall">
+    <div class="panel-label"><span class="pn">01</span> Spatial map &middot; 9 districts</div>
+    <svg class="citymap" viewBox="0 0 260 210" id="citysvg">
+      <path d="M0 188 Q25 182 65 187 Q100 193 130 188 Q155 184 170 190 Q195 198 215 202 L260 204 L260 210 L0 210Z" fill="#0b1a26" opacity=".9"/>
+      <text font-family="'IBM Plex Mono'" font-size="5.5" fill="#0f2535" x="40" y="205" letter-spacing=".1em">ARABIAN SEA</text>
+      <line x1="0" y1="72" x2="260" y2="72" stroke="#14141e" stroke-width=".5"/>
+      <line x1="0" y1="136" x2="260" y2="136" stroke="#14141e" stroke-width=".5"/>
+      <line x1="86" y1="0" x2="86" y2="192" stroke="#14141e" stroke-width=".5"/>
+      <line x1="172" y1="0" x2="172" y2="192" stroke="#14141e" stroke-width=".5"/>
+      <g id="map-conns"></g>
+      <g id="map-nodes"></g>
+    </svg>
+  </div>
+
+  <div class="panel tall span2">
+    <div class="panel-label"><span class="pn">02</span> District profile</div>
+    <div class="dp-name" id="dp-name" style="color:var(--coral)">Saddar</div>
+    <div class="dp-tag" id="dp-tag">CBD core</div>
+    <div class="dp-metrics">
+      <div class="dp-cell"><div class="dp-cl">Live dB(A)</div><div class="dp-cv" id="dp-db" style="color:var(--coral)">96</div></div>
+      <div class="dp-cell"><div class="dp-cl">Rank</div><div class="dp-cv" id="dp-rank">2/9</div></div>
+      <div class="dp-cell"><div class="dp-cl">WHO excess</div><div class="dp-cv" id="dp-who" style="color:var(--coral)">+41 dB</div></div>
+    </div>
+    <div class="dp-sources" id="dp-sources"></div>
+    <div style="margin-top:10px;font-size:8px;color:var(--muted)" id="dp-note"></div>
+  </div>
+
+  <div class="panel span2">
+    <div class="panel-label"><span class="pn">03</span> Traffic density &middot; Shahrah-e-Faisal (250k vehicles/day)</div>
+    <div class="chart-wrap">
+      <div class="chart-bars" id="traffic-bars"></div>
+      <div class="chart-x" id="traffic-x"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label"><span class="pn">04</span> District dB ranking</div>
+    <div class="rank-list" id="rank-list"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label"><span class="pn">05</span> Acoustic waveform &middot; live</div>
+    <canvas id="wave" height="120"></canvas>
+    <div class="wave-meta">
+      <div class="wm-item">Layer: <span class="wm-val" id="wm-layer">tyre roar</span></div>
+      <div class="wm-item">dB: <span class="wm-val" id="wm-db">96</span></div>
+      <div class="wm-item">Freq: <span class="wm-val" id="wm-freq">200-800 Hz</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label"><span class="pn">06</span> Hourly dB(A) &middot; district curve</div>
+    <canvas id="dbcurve" height="130"></canvas>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label"><span class="pn">07</span> Vehicle mix &middot; Karachi fleet</div>
+    <div class="vmix" id="vmix"></div>
+    <div style="margin-top:10px;font-size:7.5px;color:var(--muted)">Source: URC Transport Report 2020, JLUMHS 2008</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label"><span class="pn">08</span> Frequency spectrum &middot; district signature</div>
+    <canvas id="spec" height="100"></canvas>
+    <div class="spec-axis"><span>20 Hz</span><span>100</span><span>500</span><span>1k</span><span>5k</span><span>20k Hz</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label"><span class="pn">09</span> Data sources &middot; citations</div>
+    <div class="cit-list">
+      <div class="cit"><strong>Measured</strong> &mdash; Khan et al. <span class="year">JLUMHS 2010</span><br>Shahrah-e-Faisal + M.A. Jinnah Rd. SLM3 field study Aug 2008. Commercial mean 95.75 dB(A), peaks 110 dB(A).</div>
+      <div class="cit"><strong>Modelled</strong> &mdash; Mehdi et al. <span class="year">2011, 2018</span> + URC Karachi Transport Report <span class="year">2020</span><br>Industrial zones (SITE, Korangi): textile mill 85-112 dB. Vehicle mix: motorcycles+cars=88% fleet.</div>
+      <div class="cit"><strong>Vehicle count</strong> &mdash; Shahrah-e-Faisal 250,000 vehicles/day.<br>Motorcycles 30%, cars 30%, autorickshaw 15%, buses/trucks 25%.</div>
+      <div class="cit"><strong>WHO guideline</strong> &mdash; 55 dB(A) day, 45 dB(A) night.<br>All measured Karachi commercial sites exceed by 35-55 dB. Only Manora approaches guideline.</div>
+    </div>
+  </div>
+
+  <!-- P10: JOURNEY MODE -->
+  <div class="panel journey span3">
+    <div id="jp-header"><div class="panel-label" style="margin-bottom:0"><span class="pn">10</span> Acoustic journey &middot; district &times; time of day &middot; sky shifts with hour</div></div>
+    <div id="journey-sky">
+      <div id="jsky-l">
+        <div id="jsky-time">14:00</div>
+        <div id="jsky-period">afternoon</div>
+      </div>
+      <div id="jsky-r">
+        <div id="jsky-district">Saddar</div>
+        <div id="jsky-desc">commercial core &middot; dense</div>
+      </div>
+    </div>
+    <div id="journey-road"><canvas id="jrc"></canvas></div>
+    <div id="journey-layers">
+      <div class="jly" id="jly0" onclick="jTogL(0)"><div class="jlk">tyre</div><div class="jlv" id="jlv0">0</div><div class="jlbar"><div class="jlfill" id="jlf0"></div></div></div>
+      <div class="jly" id="jly1" onclick="jTogL(1)"><div class="jlk">moto</div><div class="jlv" id="jlv1">0</div><div class="jlbar"><div class="jlfill" id="jlf1"></div></div></div>
+      <div class="jly" id="jly2" onclick="jTogL(2)"><div class="jlk">diesel</div><div class="jlv" id="jlv2">0</div><div class="jlbar"><div class="jlfill" id="jlf2"></div></div></div>
+      <div class="jly" id="jly3" onclick="jTogL(3)"><div class="jlk">birds</div><div class="jlv" id="jlv3">0</div><div class="jlbar"><div class="jlfill" id="jlf3"></div></div></div>
+      <div class="jly" id="jly4" onclick="jTogL(4)"><div class="jlk">foley</div><div class="jlv" id="jlv4">0</div><div class="jlbar"><div class="jlfill" id="jlf4"></div></div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span class="foot-badge">Measured</span>
+  <span class="foot-badge">Modelled / typology</span>
+  <span>Karachi, Pakistan &middot; 24.86N 67.01E</span>
+  <span>WHO Env. Noise Guideline 55 dB(A) day</span>
+  <span>Sound: WebAudio API synthesis</span>
+</div>
+
+<script>
+// DATA
+const SEF_DB=[70,70,70,70,72,75,80,86,92,95,96,98,110,106,103,100,105,110,98,92,88,84,80,75];
+const SEF_TRAFFIC=[2800,2100,1600,1400,1800,3200,7200,14500,19800,16000,13500,14200,22000,20500,16800,15000,16500,21500,23500,20000,15500,11000,7500,5000];
+const DS=[
+  {id:'sef',    name:'Shah.Faisal', color:'#e06858',cx:168,cy:108,src:'m',baseDb:98,char:'COM',tM:1.4,nM:1.5,factory:false,moto:true,tag:'250k veh/day - highest measured road',note:'Measured: Khan et al. JLUMHS 2010. Peak 110 dB(A) x2 daily.',sources:'motorcycle, autorickshaw, minibus horn, truck',spec:[9,8,9,8,7,6,5,4,3,2],hourDb:SEF_DB},
+  {id:'saddar', name:'Saddar',      color:'#c8a040',cx:124,cy:118,src:'m',baseDb:96,char:'COM',tM:1.2,nM:1.3,factory:false,moto:true,tag:'CBD commercial core - JLUMHS 2008 study site',note:'Measured: commercial mean 95.75 dB(A), range 85-110 dB(A).',sources:'vendor calls, minibus, autorickshaw, mosque azan',spec:[8,9,8,7,6,5,4,3,3,4],hourDb:SEF_DB.map(v=>Math.round(v*0.98))},
+  {id:'site',   name:'SITE',        color:'#b858c8',cx:70, cy:80, src:'e',baseDb:87,char:'IND',tM:1.3,nM:1.4,factory:true, moto:true,tag:'Heavy industrial - broadband sustained noise floor',note:'Modelled. Heavy industry typology; textile/metal mills 85-112 dB.',sources:'machinery, freight rail, diesel pump, generator',spec:[9,8,8,7,6,5,5,4,4,3],hourDb:null},
+  {id:'korangi',name:'Korangi',     color:'#c85a3a',cx:218,cy:118,src:'e',baseDb:84,char:'IND',tM:1.4,nM:1.5,factory:true, moto:true,tag:'Industrial estate - petrochemical + freight',note:'Modelled. Industrial zone: perimeter road ~10 dB below plant interior.',sources:'factory plant, freight truck, diesel gen, rail',spec:[9,7,8,6,5,4,4,3,3,2],hourDb:null},
+  {id:'orangi', name:'Orangi',      color:'#e06858',cx:38, cy:54, src:'e',baseDb:79,char:'RES',tM:1.1,nM:1.2,factory:false,moto:true,tag:'2.4M residents - dense informal, motorcycle peak',note:'Modelled. Denser than JLUMHS residential control (60 dB).',sources:'motorcycle, loudspeaker, street market, crow',spec:[7,7,6,5,5,4,4,4,3,3],hourDb:null},
+  {id:'gulshan',name:'Gulshan',     color:'#4a9ac8',cx:172,cy:64, src:'e',baseDb:73,char:'RES',tM:0.9,nM:0.9,factory:false,moto:true,tag:'Gulshan-e-Iqbal - JLUMHS residential reference zone',note:'Partially anchored. JLUMHS control: 60 dB(A), range 50-75.',sources:'school traffic, light vehicle, bird/crow, azan',spec:[5,6,6,5,4,4,3,3,3,4],hourDb:null},
+  {id:'clifton',name:'Clifton',     color:'#3ab8a0',cx:100,cy:160,src:'e',baseDb:70,char:'MIX',tM:0.7,nM:0.65,factory:false,moto:false,tag:'Seafront - sea wind + commercial strip',note:'Modelled. Mixed seafront-commercial. Sea wind masking ~3 dB.',sources:'sea wind, vendors, recreational traffic, gulls',spec:[4,4,5,5,4,3,3,3,4,5],hourDb:null},
+  {id:'dha',    name:'DHA',         color:'#5aaa6a',cx:58, cy:150,src:'e',baseDb:63,char:'SUB',tM:0.65,nM:0.6,factory:false,moto:false,tag:'Cantonment suburb - lowest baseline city district',note:'Modelled. Nearest typology to JLUMHS residential control.',sources:'AC units, distant traffic, garden birds, dogs',spec:[3,3,4,4,3,2,2,2,3,4],hourDb:null},
+  {id:'manora', name:'Manora',      color:'#4a70c8',cx:28, cy:178,src:'e',baseDb:52,char:'NAT',tM:0.3,nM:0.35,factory:false,moto:false,tag:'Peninsula - sea birds, ferry, near-natural baseline',note:'Modelled. Pop 4,273. Only district near WHO 55 dB guideline.',sources:'sea birds, ferry engine, wind, harbour sounds',spec:[3,3,3,4,5,5,4,3,3,6],hourDb:null},
+];
+const CONNS=[['sef','saddar'],['sef','korangi'],['sef','gulshan'],['saddar','clifton'],['saddar','gulshan'],['saddar','site'],['site','orangi'],['dha','clifton'],['dha','orangi'],['clifton','manora']];
+const VMIX=[
+  {label:'Motorcycle',pct:30,color:'#e06858',dbContrib:'105 dB(A) peak'},
+  {label:'Car / SUV', pct:30,color:'#c8a040',dbContrib:'88 dB(A) avg'},
+  {label:'Autorickshaw',pct:15,color:'#b858c8',dbContrib:'110 dB(A) peak'},
+  {label:'Minibus',   pct:10,color:'#3ab8a0',dbContrib:'108 dB(A) horn'},
+  {label:'Truck',     pct:8, color:'#c85a3a',dbContrib:'130 dB(A) horn'},
+  {label:'Bus',       pct:7, color:'#4a9ac8',dbContrib:'95 dB(A) avg'},
+];
+const SHAPES={
+  IND:[.82,.80,.80,.80,.82,.84,.92,.96,1.0,.99,.98,.97,.98,.98,.96,.94,.93,.92,.88,.84,.82,.82,.82,.82],
+  RES:[.70,.68,.67,.67,.68,.72,.82,.92,1.0,.96,.92,.92,.98,.96,.90,.88,.90,.96,1.0,.96,.88,.82,.76,.72],
+  SUB:[.65,.63,.62,.62,.63,.67,.77,.90,.98,.95,.90,.88,.92,.90,.85,.83,.85,.88,.90,.87,.80,.74,.70,.67],
+  MIX:[.70,.68,.67,.67,.68,.72,.80,.88,.94,.92,.90,.90,.92,.90,.86,.84,.86,.92,.98,1.0,.96,.88,.80,.74],
+  NAT:[.90,.88,.87,.87,.88,.89,.90,.92,.94,.94,.94,.93,.94,.94,.93,.93,.93,.93,.94,.93,.91,.91,.90,.90],
+};
+function getLiveDb(d,h){
+  if(d.hourDb)return d.hourDb[h];
+  const s=SHAPES[d.char]||SHAPES.RES;
+  return Math.round(d.baseDb*0.80+(d.baseDb*1.08-d.baseDb*0.80)*s[h]);
+}
+let curD='saddar',curH=14,soundOn=false,audioCtx=null,soundNodes={};
+
+// SKY
+const SKY_STOPS=[[0,'#020406'],[4,'#050c14'],[5,'#0c1828'],[6,'#182440'],[7,'#263450'],[8,'#344858'],[9,'#3e5660'],[12,'#4a6470'],[15,'#566070'],[17,'#7a6254'],[18,'#a86848'],[19,'#8c5034'],[20,'#482a20'],[21,'#1e100e'],[22,'#0c0606'],[23,'#020404']];
+const JSKY=[
+  {bg:'#07080f',hd:'#0d0e1a',tc:'#3a3d5c',sc:'#20223a',pd:'deep night'},
+  {bg:'#060810',hd:'#0c0e1c',tc:'#363a58',sc:'#1e2138',pd:'deep night'},
+  {bg:'#060810',hd:'#0c0f1e',tc:'#343858',sc:'#1c2038',pd:'deep night'},
+  {bg:'#070910',hd:'#0e1020',tc:'#363a5c',sc:'#1e2240',pd:'before dawn'},
+  {bg:'#090b14',hd:'#101220',tc:'#3a3e62',sc:'#202440',pd:'before dawn'},
+  {bg:'#0e1020',hd:'#161828',tc:'#5060a0',sc:'#283060',pd:'dawn'},
+  {bg:'#141828',hd:'#1e2038',tc:'#7080c0',sc:'#384080',pd:'early dawn'},
+  {bg:'#1e2030',hd:'#282840',tc:'#8090c8',sc:'#404870',pd:'sunrise'},
+  {bg:'#2a2018',hd:'#382a20',tc:'#c09050',sc:'#705030',pd:'morning'},
+  {bg:'#382818',hd:'#483420',tc:'#c8a050',sc:'#806038',pd:'late morning'},
+  {bg:'#404018',hd:'#504e20',tc:'#d0a848',sc:'#887038',pd:'late morning'},
+  {bg:'#424018',hd:'#525020',tc:'#d8b040',sc:'#908030',pd:'midday'},
+  {bg:'#404018',hd:'#504e20',tc:'#d8b840',sc:'#908830',pd:'noon'},
+  {bg:'#3c3818',hd:'#4c4820',tc:'#d0b038',sc:'#887828',pd:'afternoon'},
+  {bg:'#383018',hd:'#483e20',tc:'#c8a830',sc:'#806818',pd:'afternoon'},
+  {bg:'#322818',hd:'#423420',tc:'#c09828',sc:'#786018',pd:'afternoon'},
+  {bg:'#2c2018',hd:'#3c2c18',tc:'#b88820',sc:'#705010',pd:'late afternoon'},
+  {bg:'#261810',hd:'#342218',tc:'#a87018',sc:'#684010',pd:'evening'},
+  {bg:'#200c08',hd:'#2e1408',tc:'#986010',sc:'#603808',pd:'dusk'},
+  {bg:'#1c0808',hd:'#280c08',tc:'#804810',sc:'#502808',pd:'dusk'},
+  {bg:'#160808',hd:'#220808',tc:'#603010',sc:'#402008',pd:'night'},
+  {bg:'#100808',hd:'#1c0808',tc:'#502818',sc:'#301808',pd:'night'},
+  {bg:'#0c0808',hd:'#180808',tc:'#402018',sc:'#281408',pd:'night'},
+  {bg:'#080808',hd:'#140808',tc:'#381820',sc:'#201010',pd:'late night'},
+];
+function lx(a,b,t){
+  const p=s=>parseInt(s.slice(1),16);
+  const ah=p(a),bh=p(b);
+  const r=Math.round(((ah>>16)&255)+((((bh>>16)&255)-((ah>>16)&255))*t));
+  const g=Math.round(((ah>>8)&255)+((((bh>>8)&255)-((ah>>8)&255))*t));
+  const bl=Math.round((ah&255)+(((bh&255)-(ah&255))*t));
+  return '#'+((r<<16)|(g<<8)|bl).toString(16).padStart(6,'0');
+}
+function jSkyAt(h){
+  const h0=Math.floor(h%24),h1=(h0+1)%24,t=h%1,a=JSKY[h0],b=JSKY[h1];
+  return{bg:lx(a.bg,b.bg,t),hd:lx(a.hd,b.hd,t),tc:lx(a.tc,b.tc,t),sc:lx(a.sc,b.sc,t),pd:a.pd};
+}
+function skyColor(h){
+  for(let i=0;i<SKY_STOPS.length-1;i++){
+    if(h>=SKY_STOPS[i][0]&&h<SKY_STOPS[i+1][0]){
+      const t=(h-SKY_STOPS[i][0])/(SKY_STOPS[i+1][0]-SKY_STOPS[i][0]);
+      return lx(SKY_STOPS[i][1],SKY_STOPS[i+1][1],t);
+    }
+  }
+  return SKY_STOPS[0][1];
+}
+function periodLabel(h){
+  if(h<5)return'LATE NIGHT';if(h<9)return'DAWN';if(h<12)return'MORNING';
+  if(h<14)return'MIDDAY';if(h<18)return'AFTERNOON';if(h<21)return'EVENING';return'NIGHT';
+}
+
+// MAP
+function buildMap(){
+  const cg=document.getElementById('map-conns'),ng=document.getElementById('map-nodes'),ns='http://www.w3.org/2000/svg';
+  CONNS.forEach(([a,b])=>{
+    const da=DS.find(d=>d.id===a),db=DS.find(d=>d.id===b);
+    const l=document.createElementNS(ns,'line');
+    l.setAttribute('x1',da.cx);l.setAttribute('y1',da.cy);l.setAttribute('x2',db.cx);l.setAttribute('y2',db.cy);
+    l.setAttribute('class','conn-l');cg.appendChild(l);
+  });
+  DS.forEach(d=>{
+    const g=document.createElementNS(ns,'g');
+    g.setAttribute('class','mapnode'+(d.id===curD?' active':''));g.setAttribute('id','mn-'+d.id);
+    g.addEventListener('click',()=>setDistrict(d.id));
+    const ring=document.createElementNS(ns,'circle');ring.setAttribute('cx',d.cx);ring.setAttribute('cy',d.cy);ring.setAttribute('r',18);ring.setAttribute('class','ring');ring.setAttribute('stroke',d.color);ring.setAttribute('id','mr-'+d.id);
+    const dot=document.createElementNS(ns,'circle');dot.setAttribute('cx',d.cx);dot.setAttribute('cy',d.cy);dot.setAttribute('r',5);dot.setAttribute('class','dot');dot.setAttribute('fill',d.color);dot.setAttribute('opacity','.9');
+    const core=document.createElementNS(ns,'circle');core.setAttribute('cx',d.cx);core.setAttribute('cy',d.cy);core.setAttribute('r',2);core.setAttribute('fill','#080810');
+    const lbl=document.createElementNS(ns,'text');lbl.setAttribute('x',d.cx);lbl.setAttribute('y',d.cy-9);lbl.setAttribute('text-anchor','middle');lbl.textContent=d.id==='sef'?'SeF':d.name.split(' ')[0].slice(0,3).toUpperCase();
+    const srcd=document.createElementNS(ns,'circle');srcd.setAttribute('cx',d.cx+7);srcd.setAttribute('cy',d.cy-9);srcd.setAttribute('r',2);srcd.setAttribute('fill',d.src==='m'?'#5aaa6a':'#c8a040');
+    const dbv=document.createElementNS(ns,'text');dbv.setAttribute('x',d.cx);dbv.setAttribute('y',d.cy+15);dbv.setAttribute('text-anchor','middle');dbv.setAttribute('font-family',"'IBM Plex Mono'");dbv.setAttribute('font-size','6.5');dbv.setAttribute('fill',d.color);dbv.setAttribute('id','mdb-'+d.id);dbv.textContent=d.baseDb+'dB';
+    [ring,dot,core,lbl,srcd,dbv].forEach(el=>g.appendChild(el));ng.appendChild(g);
+  });
+}
+
+// PANELS
+function updateDetail(h){
+  const d=DS.find(x=>x.id===curD);if(!d)return;
+  const db=getLiveDb(d,h),rank=[...DS].sort((a,b)=>getLiveDb(b,h)-getLiveDb(a,h)).findIndex(x=>x.id===d.id)+1;
+  document.getElementById('dp-name').textContent=d.id==='sef'?'Shahrah-e-Faisal':d.name;
+  document.getElementById('dp-name').style.color=d.color;
+  document.getElementById('dp-tag').textContent=d.tag;
+  document.getElementById('dp-db').textContent=db;document.getElementById('dp-db').style.color=d.color;
+  document.getElementById('dp-rank').textContent=rank+'/9';
+  const exc=db-55;
+  document.getElementById('dp-who').textContent=exc>0?'+'+exc+' dB':'OK';
+  document.getElementById('dp-who').style.color=exc>0?'#e06858':'#5aaa6a';
+  document.getElementById('dp-sources').innerHTML='Sources: '+d.sources+'<br><span class="src-badge '+(d.src==='m'?'src-m':'src-e')+'">'+(d.src==='m'?'measured':'modelled')+'</span>';
+  document.getElementById('dp-note').textContent=d.note;
+}
+function buildTrafficChart(h){
+  const bars=document.getElementById('traffic-bars'),xax=document.getElementById('traffic-x');
+  bars.innerHTML='';xax.innerHTML='';
+  const max=Math.max(...SEF_TRAFFIC);
+  SEF_TRAFFIC.forEach((v,i)=>{
+    const b=document.createElement('div');b.className='tb';
+    b.style.height=Math.round(100*v/max)+'%';
+    b.style.background=i===h?'#e06858':(i>=7&&i<=9||i===12||i===13||i>=17&&i<=18)?'#5a2a22':'#2a2020';
+    b.title=String(i).padStart(2,'0')+':00 - '+v.toLocaleString()+' veh';
+    b.addEventListener('click',()=>{document.getElementById('time-slider').value=i;updateTime(i);});
+    bars.appendChild(b);
+    const x=document.createElement('div');x.className='cx';x.textContent=i%4===0?String(i).padStart(2,'0'):'';xax.appendChild(x);
+  });
+}
+function buildRanking(h){
+  const c=document.getElementById('rank-list');c.innerHTML='';
+  const sorted=[...DS].sort((a,b)=>getLiveDb(b,h)-getLiveDb(a,h));
+  const maxDb=getLiveDb(sorted[0],h);
+  sorted.forEach((d,i)=>{
+    const db=getLiveDb(d,h),pct=Math.round(100*db/maxDb);
+    const r=document.createElement('div');r.className='rank-row'+(d.id===curD?' active':'');
+    r.innerHTML=`<span class="rank-n">${i+1}</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:${pct}%;background:${d.color}"></div></div><span class="rank-name">${d.id==='sef'?'SeF':d.name.slice(0,6)}</span><span class="rank-db" style="color:${d.color}">${db}</span><span class="rank-src" style="color:${d.src==='m'?'#5aaa6a':'#c8a040'}">${d.src==='m'?'●':'◎'}</span>`;
+    r.addEventListener('click',()=>setDistrict(d.id));c.appendChild(r);
+  });
+}
+let wavePhase=0;
+function drawWave(){
+  const canvas=document.getElementById('wave'),ctx=canvas.getContext('2d');
+  canvas.width=(canvas.offsetWidth||300)*(window.devicePixelRatio||1);canvas.height=120*(window.devicePixelRatio||1);
+  ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);
+  const W=canvas.offsetWidth||300,H=120;ctx.clearRect(0,0,W,H);
+  const d=DS.find(x=>x.id===curD),db=getLiveDb(d||DS[0],curH),amp=Math.min(48,6+(db-50)*1.1);
+  ctx.strokeStyle=d?d.color:'#3ab8a0';ctx.lineWidth=1;ctx.globalAlpha=0.85;ctx.beginPath();
+  for(let x=0;x<W;x++){const t=x/W;const y=H/2+amp*0.6*Math.sin((t*(d&&d.char==='IND'?2.8:3.5)*2*Math.PI)+wavePhase*0.7)+amp*0.25*Math.sin((t*8.5*2*Math.PI)+wavePhase*1.9)+amp*0.15*(Math.random()-0.5);x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.stroke();ctx.strokeStyle='#4a9ac8';ctx.globalAlpha=.25;ctx.lineWidth=.8;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+  wavePhase+=0.04;document.getElementById('wm-db').textContent=db;
+  if(d){const layer=d.char==='IND'?'machinery + diesel':d.char==='NAT'?'sea wind + birds':d.char==='SUB'?'distant traffic + AC':'tyre roar + motorcycle';document.getElementById('wm-layer').textContent=layer;}
+  requestAnimationFrame(drawWave);
+}
+function drawDbCurve(h){
+  const canvas=document.getElementById('dbcurve'),ctx=canvas.getContext('2d');
+  canvas.width=(canvas.offsetWidth||280)*(window.devicePixelRatio||1);canvas.height=130*(window.devicePixelRatio||1);
+  ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);
+  const W=canvas.offsetWidth||280,H=130;ctx.clearRect(0,0,W,H);
+  const d=DS.find(x=>x.id===curD),vals=Array.from({length:24},(_,i)=>getLiveDb(d,i)),mn=45,mx=115;
+  ctx.strokeStyle='#4a9ac8';ctx.globalAlpha=.3;ctx.lineWidth=.8;ctx.setLineDash([4,3]);
+  const whoY=H-H*(55-mn)/(mx-mn)-8;ctx.beginPath();ctx.moveTo(0,whoY);ctx.lineTo(W,whoY);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+  ctx.fillStyle='#4a9ac8';ctx.font='6px "IBM Plex Mono"';ctx.fillText('WHO 55',2,whoY-2);
+  ctx.strokeStyle=d?d.color:'#3ab8a0';ctx.lineWidth=1.5;ctx.beginPath();
+  vals.forEach((v,i)=>{const x=(i/23)*W,y=H-(H-12)*(v-mn)/(mx-mn)-4;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
+  const cx=(h/23)*W,cy=H-(H-12)*(vals[h]-mn)/(mx-mn)-4;ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fillStyle=d?d.color:'#3ab8a0';ctx.fill();
+  ctx.fillStyle='#3e3e52';ctx.font='6px "IBM Plex Mono"';[0,6,12,18,23].forEach(i=>ctx.fillText(String(i).padStart(2,'0'),(i/23)*W,H-1));
+}
+function buildVehicleMix(){
+  document.getElementById('vmix').innerHTML=VMIX.map(v=>`<div class="vm-row"><span class="vm-label">${v.label}</span><div class="vm-bar-wrap"><div class="vm-bar" style="width:${v.pct*3}%;background:${v.color}"></div></div><span class="vm-pct">${v.pct}%</span><span class="vm-db">${v.dbContrib}</span></div>`).join('');
+}
+function drawSpec(){
+  const canvas=document.getElementById('spec'),ctx=canvas.getContext('2d');
+  canvas.width=(canvas.offsetWidth||280)*(window.devicePixelRatio||1);canvas.height=100*(window.devicePixelRatio||1);
+  ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);
+  const W=canvas.offsetWidth||280,H=100;ctx.clearRect(0,0,W,H);
+  const d=DS.find(x=>x.id===curD);if(!d)return;
+  for(let i=0;i<48;i++){const t=i/48,ei=t*9,fl=Math.floor(ei),fc=Math.ceil(Math.min(ei,9)),ef=ei-fl;const env=d.spec[fl]*(1-ef)+d.spec[fc]*ef;const v=Math.min(1,Math.max(0,(env/10)*1.1+0.3*(Math.random()-0.5)));const bh=Math.round(v*(H-4)),bw=Math.max(1,Math.floor(W/48)-1);ctx.fillStyle=d.color;ctx.globalAlpha=0.3+0.6*v;ctx.fillRect(Math.floor(i*(W/48)),H-bh,bw,bh);}ctx.globalAlpha=1;
+}
+function buildDistrictNav(){
+  const c=document.getElementById('dist-nav');c.innerHTML='';
+  DS.forEach(d=>{const b=document.createElement('button');b.className='dn-btn'+(d.id===curD?' active':'');b.id='dnb-'+d.id;b.style.setProperty('--dc',d.color);b.textContent=(d.id==='sef'?'Shahrah-e-Faisal':d.name).toUpperCase();b.addEventListener('click',()=>setDistrict(d.id));c.appendChild(b);});
+}
+
+// AUDIO (original panels)
+function initAudio(){if(audioCtx)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();}
+function startSound(d,h){
+  stopSound();if(!audioCtx||!soundOn)return;
+  const db=getLiveDb(d,h),gain=audioCtx.createGain();
+  gain.gain.setValueAtTime(0.0001,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(Math.min(0.4,0.02*(db-50)/40+0.02),audioCtx.currentTime+0.5);gain.connect(audioCtx.destination);
+  const isMorn=h>=5&&h<9,isEven=h>=18&&h<21,nodes=[];
+  if(d.char==='NAT'){
+    for(let i=0;i<3;i++){const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*2,audioCtx.sampleRate);const data=buf.getChannelData(0);let b0=0,b1=0,b2=0;for(let j=0;j<data.length;j++){const wn=Math.random()*2-1;b0=0.99886*b0+wn*0.0555179;b1=0.99332*b1+wn*0.0750759;b2=0.96900*b2+wn*0.1538520;data[j]=(b0+b1+b2+wn*0.0875)*0.11;}const src=audioCtx.createBufferSource();src.buffer=buf;src.loop=true;const filt=audioCtx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=400+i*80;src.connect(filt);filt.connect(gain);src.start();nodes.push(src);}
+  } else {
+    const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*2,audioCtx.sampleRate);const data=buf.getChannelData(0);let b0=0,b1=0,b2=0;for(let j=0;j<data.length;j++){const wn=Math.random()*2-1;b0=0.99886*b0+wn*0.0555179;b1=0.99332*b1+wn*0.0750759;b2=0.96900*b2+wn*0.1538520;data[j]=(b0+b1+b2+wn*0.0875)*0.11;}
+    const tyreS=audioCtx.createBufferSource();tyreS.buffer=buf;tyreS.loop=true;
+    const tyreFilt=audioCtx.createBiquadFilter();tyreFilt.type='bandpass';tyreFilt.frequency.value=d.char==='IND'?180:280;tyreFilt.Q.value=0.6;
+    const tyreG=audioCtx.createGain();tyreG.gain.value=0.55;tyreS.connect(tyreFilt);tyreFilt.connect(tyreG);tyreG.connect(gain);tyreS.start();nodes.push(tyreS);
+    if(d.char!=='SUB'){
+      const moto=audioCtx.createOscillator();moto.type='triangle';moto.frequency.value=d.char==='IND'?60:d.char==='COM'?85:70;const motoG=audioCtx.createGain();motoG.gain.value=0.12;const motoFilt=audioCtx.createBiquadFilter();motoFilt.type='highpass';motoFilt.frequency.value=50;moto.connect(motoFilt);motoFilt.connect(motoG);motoG.connect(gain);moto.start();nodes.push(moto);
+      const schedM=()=>{if(!soundOn)return;const pass=audioCtx.createOscillator();pass.type='sawtooth';const pG=audioCtx.createGain();pG.gain.value=0;const pF=audioCtx.createBiquadFilter();pF.type='bandpass';pF.frequency.value=400;pF.Q.value=2;pass.connect(pF);pF.connect(pG);pG.connect(audioCtx.destination);const t=audioCtx.currentTime;pass.frequency.setValueAtTime(280,t);pass.frequency.linearRampToValueAtTime(200,t+1.5);pG.gain.setValueAtTime(0,t);pG.gain.linearRampToValueAtTime(0.07,t+0.3);pG.gain.setValueAtTime(0.07,t+0.8);pG.gain.exponentialRampToValueAtTime(0.001,t+1.5);pass.start(t);pass.stop(t+1.6);soundNodes._motoTimer=setTimeout(schedM,d.char==='COM'?(1500+Math.random()*1500):(3000+Math.random()*4000));};schedM();
+    }
+    if(d.char==='IND'||d.factory){const diesel=audioCtx.createOscillator();diesel.type='sawtooth';diesel.frequency.value=45;const dG=audioCtx.createGain();dG.gain.value=0.18;const dF=audioCtx.createBiquadFilter();dF.type='lowpass';dF.frequency.value=120;diesel.connect(dF);dF.connect(dG);dG.connect(gain);diesel.start();nodes.push(diesel);}
+  }
+  if((isMorn||isEven)&&d.char!=='IND'){
+    const bG=audioCtx.createGain();bG.gain.value=0.07;bG.connect(audioCtx.destination);
+    const schedB=()=>{if(!soundOn)return;const o=audioCtx.createOscillator();o.type='sine';o.frequency.value=2200+Math.random()*600;const bg=audioCtx.createGain();bg.gain.value=0;o.connect(bg);bg.connect(bG);const t=audioCtx.currentTime;bg.gain.setValueAtTime(0,t);bg.gain.linearRampToValueAtTime(0.6,t+0.05);bg.gain.exponentialRampToValueAtTime(0.001,t+0.3);o.start(t);o.stop(t+0.35);soundNodes._birdTimer=setTimeout(schedB,(800+Math.random()*2000));};schedB();
+  }
+  soundNodes._nodes=nodes;soundNodes._gain=gain;
+}
+function stopSound(){
+  if(soundNodes._nodes)soundNodes._nodes.forEach(n=>{try{n.stop();}catch(e){}});
+  if(soundNodes._gain)try{soundNodes._gain.disconnect();}catch(e){}
+  ['_motoTimer','_birdTimer','_crowTimer'].forEach(k=>{if(soundNodes[k])clearTimeout(soundNodes[k]);});
+  soundNodes={};
+}
+function toggleSound(){
+  soundOn=!soundOn;const btn=document.getElementById('sound-btn');
+  if(soundOn){initAudio();if(audioCtx.state==='suspended')audioCtx.resume();btn.textContent='Stop Sound';btn.classList.add('active');const d=DS.find(x=>x.id===curD);startSound(d,curH);if(!jAudioBuilt){jBuildAudioLayers();jUpdateContinuous();}jStartSchedulers();}
+  else{stopSound();jKillSchedulers();btn.textContent='Sound On';btn.classList.remove('active');}
+}
+
+// JOURNEY P10 AUDIO
+const JLCOLS=['#8080c0','#c89040','#407060','#5a9040','#a06880'];
+const jLayerOn=[true,true,true,true,true];
+const jTimers={moto:null,bird:null,foley:null};
+let jSchedulerRunning=false,jAudioBuilt=false;
+const jLGains=[],jLAna=[];
+let jTyreGain=null,jTyreFilt=null,jDieselGain=null,jDieselMod=null,jDieselModGain=null;
+let jCurD=0,jCurS=80;
+
+function jMakePink(dur){
+  const n=Math.floor(audioCtx.sampleRate*dur),buf=audioCtx.createBuffer(1,n,audioCtx.sampleRate),d=buf.getChannelData(0);
+  let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+  for(let i=0;i<n;i++){const w=Math.random()*2-1;b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.96900*b2+w*.1538520;b3=.86650*b3+w*.3104856;b4=.55000*b4+w*.5329522;b5=-.7616*b5-w*.0168980;d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11;b6=w*.115926;}
+  return buf;
+}
+function jBuildAudioLayers(){
+  if(jAudioBuilt)return;
+  for(let i=0;i<5;i++){const g=audioCtx.createGain();const a=audioCtx.createAnalyser();a.fftSize=256;g.connect(a);a.connect(audioCtx.destination);jLGains.push(g);jLAna.push(a);}
+  const tn=audioCtx.createBufferSource();tn.buffer=jMakePink(3);tn.loop=true;
+  jTyreFilt=audioCtx.createBiquadFilter();jTyreFilt.type='peaking';jTyreFilt.frequency.value=105;jTyreFilt.Q.value=2.5;jTyreFilt.gain.value=14;
+  const tf2=audioCtx.createBiquadFilter();tf2.type='peaking';tf2.frequency.value=920;tf2.Q.value=4;tf2.gain.value=8;
+  const tf3=audioCtx.createBiquadFilter();tf3.type='lowpass';tf3.frequency.value=2200;
+  jTyreGain=audioCtx.createGain();jTyreGain.gain.value=0;
+  tn.connect(jTyreFilt);jTyreFilt.connect(tf2);tf2.connect(tf3);tf3.connect(jTyreGain);jTyreGain.connect(jLGains[0]);tn.start();
+  const dosc=audioCtx.createOscillator();dosc.type='sawtooth';dosc.frequency.value=72;
+  jDieselMod=audioCtx.createOscillator();jDieselMod.type='sine';jDieselMod.frequency.value=22;
+  jDieselModGain=audioCtx.createGain();jDieselModGain.gain.value=0;
+  const df=audioCtx.createBiquadFilter();df.type='lowpass';df.frequency.value=180;df.Q.value=2;
+  jDieselGain=audioCtx.createGain();jDieselGain.gain.value=0;
+  jDieselMod.connect(jDieselModGain);jDieselModGain.connect(dosc.frequency);dosc.connect(df);df.connect(jDieselGain);jDieselGain.connect(jLGains[2]);dosc.start();jDieselMod.start();
+  jAudioBuilt=true;
+}
+function jSpawnMoto(){
+  if(!jAudioBuilt||!jLayerOn[1])return;
+  const now=audioCtx.currentTime,dur=1.8+Math.random()*2.5,bf=150+Math.random()*100;
+  const osc=audioCtx.createOscillator();osc.type='triangle';
+  osc.frequency.setValueAtTime(bf*1.08,now);osc.frequency.linearRampToValueAtTime(bf,now+dur*.4);osc.frequency.linearRampToValueAtTime(bf*.93,now+dur);
+  const lp=audioCtx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=520+jCurD*260;lp.Q.value=.7;
+  const g=audioCtx.createGain();g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.016+jCurD*.008,now+dur*.35);g.gain.setValueAtTime(.016+jCurD*.008,now+dur*.6);g.gain.exponentialRampToValueAtTime(.0001,now+dur);
+  osc.connect(lp);lp.connect(g);g.connect(jLGains[1]);osc.start(now);osc.stop(now+dur+.05);
+}
+function jSpawnBird(){
+  if(!jAudioBuilt||!jLayerOn[3])return;
+  const now=audioCtx.currentTime,notes=2+Math.floor(Math.random()*4);
+  for(let n=0;n<notes;n++){const t=now+n*(.09+Math.random()*.07),freq=2400+Math.random()*1600,dur=.04+Math.random()*.05;const osc=audioCtx.createOscillator();osc.type='sine';osc.frequency.setValueAtTime(freq,t);osc.frequency.linearRampToValueAtTime(freq*(1+(Math.random()<.5?.18:-.12)),t+dur);const g=audioCtx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.06,t+.007);g.gain.exponentialRampToValueAtTime(.0001,t+dur);osc.connect(g);g.connect(jLGains[3]);osc.start(t);osc.stop(t+dur+.02);}
+}
+function jSpawnCrow(){
+  if(!jAudioBuilt||!jLayerOn[3])return;
+  const now=audioCtx.currentTime,syllables=2+Math.floor(Math.random()*2);
+  for(let s=0;s<syllables;s++){const t=now+s*(.17+Math.random()*.08),freq=1500+Math.random()*500,dur=.1+Math.random()*.07;const buf=audioCtx.createBuffer(1,Math.floor(audioCtx.sampleRate*.24),audioCtx.sampleRate);const bd=buf.getChannelData(0);for(let i=0;i<bd.length;i++)bd[i]=Math.random()*2-1;const src=audioCtx.createBufferSource();src.buffer=buf;src.playbackRate.value=.65+Math.random()*.4;const f1=audioCtx.createBiquadFilter();f1.type='bandpass';f1.frequency.value=freq;f1.Q.value=11;const f2=audioCtx.createBiquadFilter();f2.type='peaking';f2.frequency.value=freq*1.6;f2.Q.value=3;f2.gain.value=10;const g=audioCtx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.2,t+.007);g.gain.exponentialRampToValueAtTime(.0001,t+dur);src.connect(f1);f1.connect(f2);f2.connect(g);g.connect(jLGains[3]);src.start(t);src.stop(t+dur+.03);}
+}
+function jSpawnFoley(){
+  if(!jAudioBuilt||!jLayerOn[4])return;
+  const now=audioCtx.currentTime,dur=.7+Math.random()*.9,bf=160+Math.random()*80;
+  const osc=audioCtx.createOscillator();osc.type='sawtooth';osc.frequency.setValueAtTime(bf*.88,now);osc.frequency.linearRampToValueAtTime(bf*1.2,now+dur*.3);osc.frequency.linearRampToValueAtTime(bf*.88,now+dur);
+  const f1=audioCtx.createBiquadFilter();f1.type='bandpass';f1.frequency.value=750;f1.Q.value=5;
+  const f2=audioCtx.createBiquadFilter();f2.type='bandpass';f2.frequency.value=1200;f2.Q.value=7;
+  const lp=audioCtx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3000;
+  const g=audioCtx.createGain();g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.09,now+.06);g.gain.setValueAtTime(.09,now+dur*.65);g.gain.exponentialRampToValueAtTime(.0001,now+dur);
+  osc.connect(f1);osc.connect(f2);f1.connect(lp);f2.connect(lp);lp.connect(g);g.connect(jLGains[4]);osc.start(now);osc.stop(now+dur+.06);
+}
+function jUpdateContinuous(){
+  if(!jAudioBuilt)return;
+  const d=DS.find(x=>x.id===curD),now=audioCtx.currentTime;
+  jTyreGain.gain.setTargetAtTime(jLayerOn[0]?(.18+jCurD*.5)*(d?d.nM:1):0,now,.4);
+  jTyreFilt.frequency.setTargetAtTime(80+jCurS*.4,now,.6);
+  jDieselGain.gain.setTargetAtTime(jLayerOn[2]&&d&&(d.factory||jCurD>.4)?(.05+jCurD*.13)*d.nM:0,now,.5);
+  jDieselMod.frequency.setTargetAtTime(18+jCurD*8,now,.8);
+  jDieselModGain.gain.setTargetAtTime(jCurD*14,now,.5);
+}
+function jKillSchedulers(){Object.keys(jTimers).forEach(k=>{clearTimeout(jTimers[k]);jTimers[k]=null;});jSchedulerRunning=false;}
+function jStartSchedulers(){
+  if(jSchedulerRunning||!soundOn||!jAudioBuilt)return;
+  jSchedulerRunning=true;
+  const d=DS.find(x=>x.id===curD);
+  function loop(key,fn,gi){const tick=()=>{if(!soundOn){jTimers[key]=null;return;}fn();jTimers[key]=setTimeout(tick,gi());};jTimers[key]=setTimeout(tick,Math.random()*600);}
+  loop('moto',jSpawnMoto,()=>d&&d.moto?Math.max(120,1100-jCurD*900)*(0.5+Math.random()*.9):99999);
+  loop('bird',()=>{const h=curH,crow=(h>=5&&h<=8)||(h>=16&&h<=19),bird=(h>=5&&h<=10)||(h>=16&&h<=20);if(!jLayerOn[3])return;if(crow&&Math.random()<.55)jSpawnCrow();else if(bird)jSpawnBird();},()=>((curH>=5&&curH<=10)||(curH>=16&&curH<=20))?1200+Math.random()*1400:8000+Math.random()*6000);
+  loop('foley',()=>{if(jLayerOn[4]&&curH>=7&&curH<=21)jSpawnFoley();},()=>(curH>=10&&curH<=15)?5000+Math.random()*5000:11000+Math.random()*8000);
+}
+function jRestart(){jKillSchedulers();setTimeout(()=>{jSchedulerRunning=false;if(soundOn&&jAudioBuilt)jStartSchedulers();},300);}
+function jTogL(i){jLayerOn[i]=!jLayerOn[i];document.getElementById('jly'+i).classList.toggle('off',!jLayerOn[i]);if(jAudioBuilt&&soundOn)jUpdateContinuous();}
+
+// JOURNEY ROAD
+const jrcc=document.getElementById('jrc');
+jrcc.width=1200;jrcc.height=80;
+const jrx=jrcc.getContext('2d');
+const jVehs=[];
+const HOURLY_BASE=[2800,2100,1600,1400,1800,3200,7200,14500,19800,16000,13500,14200,22000,20500,16800,15000,16500,21500,23500,20000,15500,11000,7500,5000];
+function jSpawnVeh(){
+  const d=DS.find(x=>x.id===curD),h=curH;
+  const V=Math.round(HOURLY_BASE[h]*(d?d.tM:1)),d2=Math.min(1,V/22000),s=Math.max(8,80*(1-Math.pow(d2,.6)));
+  const r=Math.random();let w,h2,col;
+  if(r<.58){w=5+Math.random()*3;h2=3+Math.random()*2;col='rgba(200,160,80,.7)';}
+  else if(r<.66){w=22+Math.random()*8;h2=7+Math.random()*2;col='rgba(60,80,55,.65)';}
+  else{w=11+Math.random()*5;h2=5+Math.random()*2;col='rgba(85,80,75,.65)';}
+  const dir=Math.random()<.5?1:-1,ln=Math.floor(Math.random()*3);
+  jVehs.push({x:dir===1?-w:600+w,y:dir===1?(40+ln*12):(28-ln*12),w,h:h2,col,vx:(s/3.6)*(600/5000)*dir*(0.7+Math.random()*.6)});
+  if(jVehs.length>150)jVehs.splice(0,20);
+}
+const jRmsS=new Array(5).fill(0),jRmsB=Array.from({length:5},()=>new Uint8Array(256));
+function jDrawMeter(){
+  JLCOLS.forEach((col,i)=>{
+    if(jAudioBuilt&&soundOn&&jLayerOn[i]){jLAna[i].getByteTimeDomainData(jRmsB[i]);let s=0;for(let k=0;k<jRmsB[i].length;k++){const v=jRmsB[i][k]/128-1;s+=v*v;}jRmsS[i]=jRmsS[i]*.72+Math.sqrt(s/jRmsB[i].length)*.28;}else jRmsS[i]*=.88;
+    document.getElementById('jlv'+i).textContent=Math.round(jRmsS[i]*1000)/10;
+    document.getElementById('jlf'+i).style.width=Math.min(100,Math.round(jRmsS[i]*900))+'%';
+    document.getElementById('jlf'+i).style.background=col;
+  });
+}
+function jFrame(){
+  const h=curH,d=DS.find(x=>x.id===curD);
+  const V=Math.round(HOURLY_BASE[h]*(d?d.tM:1)),d2=Math.min(1,V/22000),s2=Math.max(8,80*(1-Math.pow(d2,.6)));
+  jCurD=d2;jCurS=s2;
+  const sky=jSkyAt(h);
+  document.getElementById('journey-sky').style.background=sky.hd;
+  document.getElementById('jsky-time').textContent=String(h).padStart(2,'0')+':00';
+  document.getElementById('jsky-time').style.color=sky.tc;
+  document.getElementById('jsky-period').textContent=sky.pd;
+  document.getElementById('jsky-period').style.color=sky.sc;
+  document.getElementById('jsky-district').textContent=d?d.name:'—';
+  document.getElementById('jsky-district').style.color=d?d.color:sky.tc;
+  document.getElementById('jsky-desc').textContent=d?d.tag:'';
+  document.getElementById('jsky-desc').style.color=sky.sc;
+  document.getElementById('journey-road').style.background=sky.bg;
+  if(Math.random()<d2*0.7)jSpawnVeh();
+  jrx.fillStyle=sky.bg+'cc';jrx.fillRect(0,0,600,80);
+  jrx.strokeStyle='rgba(255,255,255,.06)';jrx.lineWidth=.5;jrx.beginPath();jrx.moveTo(0,40);jrx.lineTo(600,40);jrx.stroke();
+  jrx.strokeStyle='rgba(255,255,255,.03)';jrx.setLineDash([8,12]);
+  [1,2].forEach(l=>{jrx.beginPath();jrx.moveTo(0,40+l*12);jrx.lineTo(600,40+l*12);jrx.stroke();jrx.beginPath();jrx.moveTo(0,40-l*12);jrx.lineTo(600,40-l*12);jrx.stroke();});
+  jrx.setLineDash([]);
+  for(let i=jVehs.length-1;i>=0;i--){const v=jVehs[i];v.x+=v.vx;if(v.x>640||v.x<-40){jVehs.splice(i,1);continue;}jrx.fillStyle=v.col;jrx.fillRect(v.x-v.w/2,v.y-v.h/2,v.w,v.h);}
+  if(jAudioBuilt&&soundOn)jUpdateContinuous();
+  jDrawMeter();
+  requestAnimationFrame(jFrame);
+}
+
+// GLOBAL
+function setDistrict(id){
+  curD=id;
+  document.querySelectorAll('.dn-btn').forEach(b=>b.classList.toggle('active',b.id==='dnb-'+id));
+  document.querySelectorAll('.mapnode').forEach(n=>n.classList.toggle('active',n.id==='mn-'+id));
+  const d=DS.find(x=>x.id===id);if(!d)return;
+  updateAllPanels(curH);if(soundOn)startSound(d,curH);jRestart();
+}
+function updateTime(h){
+  curH=h;
+  document.getElementById('tv').textContent=String(h).padStart(2,'0')+':00';
+  document.getElementById('period-lbl').textContent=periodLabel(h);
+  document.getElementById('sky-strip').style.background=skyColor(h);
+  DS.forEach(d=>{
+    const db=getLiveDb(d,h);
+    const el=document.getElementById('mdb-'+d.id);if(el)el.textContent=db+'dB';
+    const ring=document.getElementById('mr-'+d.id);if(ring)ring.setAttribute('r',Math.round(5+(db-50)*0.35));
+  });
+  updateAllPanels(h);if(soundOn){const d=DS.find(x=>x.id===curD);startSound(d,h);}
+  if(jAudioBuilt&&soundOn)jRestart();
+}
+function updateAllPanels(h){updateDetail(h);buildTrafficChart(h);buildRanking(h);drawDbCurve(h);drawSpec();}
+function stepTime(delta){const newH=(curH+delta+24)%24;document.getElementById('time-slider').value=newH;updateTime(newH);}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  buildMap();buildDistrictNav();buildVehicleMix();updateTime(14);drawWave();jFrame();
+  document.getElementById('time-slider').addEventListener('input',e=>updateTime(parseInt(e.target.value)));
+});
+</script>
+</body>
+</html>
