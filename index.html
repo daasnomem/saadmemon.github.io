@@ -152,6 +152,17 @@ a.tool-card:hover .card-arrow{opacity:1;transform:translate(0,0)}
 .tool-status{font-family:var(--mono);font-size:9px;color:var(--cyan);border:0.5px solid var(--cyan-dim);padding:2px 7px;border-radius:2px;display:inline-block;margin-bottom:14px}
 @media(max-width:900px){.tools-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){.tools{padding-left:24px;padding-right:24px}.tools-grid{grid-template-columns:1fr}}
+.tool-viz{cursor:pointer}
+.tool-ctrl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-10px 0 20px;min-height:26px}
+.tb{font-family:var(--mono);font-size:10px;color:var(--muted);background:transparent;border:0.5px solid var(--line);padding:5px 9px;border-radius:2px;cursor:pointer;text-decoration:none;transition:all .15s}
+.tb:hover{color:var(--cyan);border-color:var(--cyan-dim)}
+.tb.on{color:var(--bg);background:var(--cyan);border-color:var(--cyan)}
+.tb.bad{color:#ff6b6b;border-color:#5a2020}
+.tb.hot{color:var(--cyan);border-color:var(--cyan-dim)}
+.tb.pad{min-width:26px;text-align:center}
+.tb:active{transform:scale(.96)}
+.tsep{width:6px}
+.tnote{font-family:var(--mono);font-size:9px;color:var(--dimmer)}
 </style>
 </head>
 <body>
@@ -261,10 +272,11 @@ a.tool-card:hover .card-arrow{opacity:1;transform:translate(0,0)}
 
 <section class="tools" id="tools">
   <div class="section-label">// tools_i_built</div>
-  <p class="tools-intro">I'm a musician who builds. Trained in classical and jazz at UMBC, I produce with generative modular workflows, and when a tool I want doesn't exist, I make it. Most of these started as a problem I had as a player.</p>
+  <p class="tools-intro">I'm a musician who builds. Trained in classical and jazz at UMBC, I produce with generative modular workflows, and when a tool I want doesn't exist, I make it. Most of these started as a problem I had as a player. Every card below is a playable sketch rebuilt for this page: turn your sound on and tap in. All audio is synthesized live in your browser.</p>
   <div class="tools-grid">
     <div class="tool-card">
-      <div class="tool-viz"><canvas data-viz="practice"></canvas><span class="viz-label">● LIVE VISUALIZATION</span></div>
+      <div class="tool-viz"><canvas data-viz="practice"></canvas><span class="viz-label">● PLAYABLE SKETCH · TAP ME</span></div>
+      <div class="tool-ctrl" data-ctrl="practice"></div>
       <div class="tool-status">01 · built</div>
       <div class="card-title">Instrument Practice Suite</div>
       <div class="card-desc">Separate practice apps for <b style="color:var(--white);font-weight:400">bass, keys and voice</b>. Plug in the real instrument and the app listens: it hears what you play and turns practice into skill games.</div>
@@ -273,7 +285,8 @@ a.tool-card:hover .card-arrow{opacity:1;transform:translate(0,0)}
       
     </div>
     <div class="tool-card">
-      <div class="tool-viz"><canvas data-viz="ear"></canvas><span class="viz-label">● LIVE VISUALIZATION</span></div>
+      <div class="tool-viz"><canvas data-viz="ear"></canvas><span class="viz-label">● PLAYABLE SKETCH · TAP ME</span></div>
+      <div class="tool-ctrl" data-ctrl="ear"></div>
       <div class="tool-status">02 · built</div>
       <div class="card-title">ear.io</div>
       <div class="card-desc">Gamified ear training in the browser. Intervals, modes and melodies, with XP and ranks so training feels like a game, not homework.</div>
@@ -282,7 +295,8 @@ a.tool-card:hover .card-arrow{opacity:1;transform:translate(0,0)}
       
     </div>
     <div class="tool-card">
-      <div class="tool-viz"><canvas data-viz="chop"></canvas><span class="viz-label">● LIVE VISUALIZATION</span></div>
+      <div class="tool-viz"><canvas data-viz="chop"></canvas><span class="viz-label">● PLAYABLE SKETCH · TAP ME</span></div>
+      <div class="tool-ctrl" data-ctrl="chop"></div>
       <div class="tool-status">03 · built</div>
       <div class="card-title">Sample Chopper</div>
       <div class="card-desc">A fast tool for slicing and flipping samples. Drop audio in, find the hits, chop it into pads and rearrange it into something new.</div>
@@ -291,7 +305,8 @@ a.tool-card:hover .card-arrow{opacity:1;transform:translate(0,0)}
       
     </div>
     <div class="tool-card">
-      <div class="tool-viz"><canvas data-viz="gen"></canvas><span class="viz-label">● LIVE VISUALIZATION</span></div>
+      <div class="tool-viz"><canvas data-viz="gen"></canvas><span class="viz-label">● PLAYABLE SKETCH · TAP ME</span></div>
+      <div class="tool-ctrl" data-ctrl="gen"></div>
       <div class="tool-status">04 · built &amp; performed with</div>
       <div class="card-title">Generative Music + Live Visuals</div>
       <div class="card-desc">A generative system for writing and performing. I design the rules, it plays back surprises, and the visuals react live to whatever is being played.</div>
@@ -299,17 +314,19 @@ a.tool-card:hover .card-arrow{opacity:1;transform:translate(0,0)}
       <div class="card-tags"><span class="card-tag">generative</span><span class="card-tag">&nbsp;·&nbsp;</span><span class="card-tag">live-performance</span><span class="card-tag">&nbsp;·&nbsp;</span><span class="card-tag">audio-reactive</span></div>
       
     </div>
-    <a class="tool-card" href="https://daasnomem.github.io/music-worlds/" target="_blank">
-      <div class="tool-viz"><canvas data-viz="worlds"></canvas><span class="viz-label">● LIVE VISUALIZATION</span></div>
+    <div class="tool-card">
+      <div class="tool-viz"><canvas data-viz="worlds"></canvas><span class="viz-label">● PLAYABLE SKETCH · TAP ME</span></div>
+      <div class="tool-ctrl" data-ctrl="worlds"></div>
       <div class="tool-status">05 · live</div>
       <div class="card-title">music.worlds</div>
       <div class="card-desc">A personal atlas of how I hear music. My DJ library sorted by feel, not genre: each "world" has its own vocabulary, energy scale and motion.</div>
       <ul class="tool-how"><li>own taxonomy of ~130 tracks</li><li>paste a link, listen, drag it onto a world</li><li>the software never auto-classifies</li></ul>
       <div class="card-tags"><span class="card-tag">taxonomy</span><span class="card-tag">&nbsp;·&nbsp;</span><span class="card-tag">listening</span><span class="card-tag">&nbsp;·&nbsp;</span><span class="card-tag">interactive</span></div>
-      <div class="card-arrow">↗</div>
-    </a>
+      
+    </div>
     <div class="tool-card">
-      <div class="tool-viz"><canvas data-viz="director"></canvas><span class="viz-label">● LIVE VISUALIZATION</span></div>
+      <div class="tool-viz"><canvas data-viz="director"></canvas><span class="viz-label">● PLAYABLE SKETCH · TAP ME</span></div>
+      <div class="tool-ctrl" data-ctrl="director"></div>
       <div class="tool-status">06 · in development</div>
       <div class="card-title">DIRECTOR</div>
       <div class="card-desc">Scenario orchestration for bots inside Counter-Strike 2. The goal: describe a situation in plain words and the bots set it up and play it out. The bot-control layer underneath is working today.</div>
@@ -396,50 +413,6 @@ lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox()});
 </script>
 
-<script>
-(function(){
-const C='#00C2CB',D='#1A4A4D',M='#4A5E70';
-const cs=[...document.querySelectorAll('canvas[data-viz]')];
-function fit(c){const r=c.getBoundingClientRect(),d=window.devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return [x,r.width,r.height]}
-let rnd=s=>()=>(s=(s*16807)%2147483647)/2147483647;
-const chopWave=(()=>{const r=rnd(7),a=[];for(let i=0;i<220;i++){const hit=[18,60,95,140,175,200].some(h=>i>=h&&i<h+4);a.push((hit?0.9:0.15)*(0.4+0.6*r())*Math.exp(-((i%37)/30)))}return a})();
-const gr=rnd(3),nodes=[...Array(26)].map(()=>[gr(),gr()]);
-const wr=rnd(11),worlds=[[.2,.32],[.52,.5],[.82,.3],[.28,.75],[.75,.76]].map(([x,y],k)=>({x,y,p:[...Array(12)].map(()=>[wr()*6.28,0.04+wr()*0.07,wr()])}));
-const draw={
-practice(x,w,h,t){const lanes=['E','A','D','G'];lanes.forEach((l,i)=>{const y=20+i*(h-34)/3;x.strokeStyle='#1A2330';x.beginPath();x.moveTo(26,y);x.lineTo(w-8,y);x.stroke();x.fillStyle=M;x.font='9px monospace';x.fillText(l,10,y+3)});
- for(let k=0;k<8;k++){const nx=w-((t*60+k*70)%(w+40))+20,ln=(k*3)%4,y=20+ln*(h-34)/3;x.fillStyle=nx<w*0.3?C:D;x.fillRect(nx-10,y-5,20,10)}
- x.strokeStyle=C;x.lineWidth=1.5;x.beginPath();for(let px=26;px<w*0.3;px++){const y=h/2+Math.sin(px*0.08+t*6)*(h/3)*Math.sin(t*0.7);px==26?x.moveTo(px,y):x.lineTo(px,y)}x.stroke();x.lineWidth=1;
- x.strokeStyle=C;x.globalAlpha=.4;x.beginPath();x.moveTo(w*0.3,8);x.lineTo(w*0.3,h-8);x.stroke();x.globalAlpha=1;
- x.fillStyle=C;x.font='9px monospace';x.fillText('HIT x'+(12+Math.floor(t*2)%40),w-64,14)},
-ear(x,w,h,t){const cx=w/2,cy=h/2;for(let i=0;i<12;i++){const a=i/12*6.283-1.57,r=h*0.36,on=i==Math.floor(t*1.5)%12||i==0;x.fillStyle=on?C:'#1A2330';x.beginPath();x.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,on?5:3.5,0,7);x.fill()}
- const k=Math.floor(t*1.5)%12,a=k/12*6.283-1.57;x.strokeStyle=C;x.globalAlpha=.6;x.beginPath();x.moveTo(cx,cy-h*0.36);x.lineTo(cx+Math.cos(a)*h*.36,cy+Math.sin(a)*h*.36);x.stroke();x.globalAlpha=1;
- const names=['P1','m2','M2','m3','M3','P4','TT','P5','m6','M6','m7','M7'];x.fillStyle=C;x.font='12px monospace';x.textAlign='center';x.fillText(names[k],cx,cy+4);x.textAlign='left';
- x.fillStyle='#1A2330';x.fillRect(10,h-12,80,4);x.fillStyle=C;x.fillRect(10,h-12,(t*12)%80,4);x.fillStyle=M;x.font='8px monospace';x.fillText('XP',10,h-16)},
-chop(x,w,h,t){const n=chopWave.length,bw=(w-20)/n;const slices=[18,60,95,140,175,200];const act=Math.floor(t*3)%slices.length;
- chopWave.forEach((v,i)=>{const s=slices.findIndex((p,j)=>i>=p&&i<(slices[j+1]||n));x.fillStyle=s==act?C:D;const a=v*(h*0.38);x.fillRect(10+i*bw,h*0.45-a,Math.max(bw-0.5,0.5),a*2)});
- slices.forEach((p,j)=>{const px=10+p*bw;x.strokeStyle=j==act?C:M;x.beginPath();x.moveTo(px,8);x.lineTo(px,h*0.85);x.stroke()});
- for(let j=0;j<6;j++){x.strokeStyle=j==act?C:'#1A2330';x.strokeRect(10+j*((w-20)/6)+2,h-16,(w-20)/6-4,10)}},
-gen(x,w,h,t){const mp=window.__P.get('gen');const env=Math.max(0,Math.sin(t*2.1))**4+Math.max(0,Math.sin(t*3.3+1))**6*0.6;
- nodes.forEach(([a,b],i)=>{let px=10+a*(w-20)+Math.sin(t+i)*9*env,py=10+b*(h-20)+Math.cos(t*1.3+i)*9*env;if(mp){const dx=mp[0]-px,dy=mp[1]-py,d=Math.hypot(dx,dy);if(d<90){px+=dx*(1-d/90)*.35;py+=dy*(1-d/90)*.35;x.strokeStyle=C;x.globalAlpha=.25*(1-d/90);x.beginPath();x.moveTo(px,py);x.lineTo(mp[0],mp[1]);x.stroke();x.globalAlpha=1}}nodes.forEach(([c,d],j)=>{if(j<=i)return;const qx=10+c*(w-20),qy=10+d*(h-20),dd=Math.hypot(px-qx,py-qy);if(dd<40+env*40){x.strokeStyle=C;x.globalAlpha=(1-dd/80)*.5*(0.3+env);x.beginPath();x.moveTo(px,py);x.lineTo(qx,qy);x.stroke()}});x.globalAlpha=1;x.fillStyle=C;x.beginPath();x.arc(px,py,1.5+env*2.5,0,7);x.fill()});
- x.globalCompositeOperation='source-over';x.shadowBlur=0;x.clearRect(w-48,4,44,20);x.fillStyle=M;x.font='8px monospace';x.fillText('INPUT',w-44,14);x.fillStyle=C;x.fillRect(w-44,18,34*env,3)},
-worlds(x,w,h,t){worlds.forEach((W,k)=>{const cx=W.x*w,cy=W.y*h;W.p.forEach(([ph,sp,r],i)=>{let px,py;const a=ph+t*sp*(k+1)*3;
- if(k==0){px=cx+Math.cos(a)*18*r+6;py=cy+Math.sin(a*2)*8*r}else if(k==1){px=cx+Math.sin(a+i)*20*r;py=cy+Math.sin(a*.5)*10}else if(k==2){px=cx+(Math.random()-.5)*14*r;py=cy+(Math.random()-.5)*14*r}else if(k==3){px=cx+Math.cos(a)*22*r;py=cy+Math.sin(a)*6}else{px=cx+((t*20*r+i*5)%30)-15;py=cy+Math.sin(i)*8}
- const mp=window.__P.get('worlds');if(mp){const d=Math.hypot(mp[0]-cx,mp[1]-cy);if(d<70){px+=(px-cx)*(1-d/70)*1.2;py+=(py-cy)*(1-d/70)*1.2}}x.fillStyle=C;x.globalAlpha=.35+r*.6;x.beginPath();x.arc(px,py,1.4+r*1.6,0,7);x.fill()})});x.globalAlpha=1;x.globalCompositeOperation='source-over';x.shadowBlur=0;x.fillStyle='#06090c';x.fillRect(0,0,0,0);x.fillStyle=M;x.font='8px monospace';['KINETIC HYPNOSIS','LIQUID GROOVE','STRANGE ATTRACTOR','DUBBED HORIZONS','NIGHT TRANSIT'].forEach((n,k)=>x.fillText(n,worlds[k].x*w-30,worlds[k].y*h+26))},
-director(x,w,h,t){const g=[];for(let i=0;i<7;i++)for(let j=0;j<4;j++)g.push([20+i*(w-40)/6,18+j*(h-36)/3]);
- x.strokeStyle='#1A2330';g.forEach(([a,b],i)=>{if(i+4<g.length){x.beginPath();x.moveTo(a,b);x.lineTo(...g[i+4]);x.stroke()}if(i%4<3){x.beginPath();x.moveTo(a,b);x.lineTo(...g[i+1]);x.stroke()}});
- g.forEach(([a,b])=>{x.fillStyle='#2A3A4A';x.fillRect(a-1.5,b-1.5,3,3)});
- const path=[0,4,5,9,13,14,18,22,23,27];const L=path.length-1,f=(t*0.6)%1*L,i=Math.floor(f),u=f-i;
- x.strokeStyle=C;x.globalAlpha=.5;x.beginPath();path.forEach((p,k)=>k?x.lineTo(...g[p]):x.moveTo(...g[p]));x.stroke();x.globalAlpha=1;
- const [ax,ay]=g[path[i]],[bx,by]=g[path[i+1]];x.fillStyle=C;x.beginPath();x.arc(ax+(bx-ax)*u,ay+(by-ay)*u,3.5,0,7);x.fill();
- x.fillStyle=M;x.font='8px monospace';x.fillText('"hold B site, rotate on contact"',8,h-5)}
-};
-const P=new Map();cs.forEach(c=>{c.parentElement.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect();P.set(c.dataset.viz,[e.clientX-r.left,e.clientY-r.top])});c.parentElement.addEventListener('pointerleave',()=>P.delete(c.dataset.viz))});window.__P=P;
-let ctx=[];function setup(){ctx=cs.map(c=>[c.dataset.viz,...fit(c)])}setup();addEventListener('resize',setup);
-const vis=new Set();const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?vis.add(e.target):vis.delete(e.target)));cs.forEach(c=>io.observe(c));
-const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
-function loop(ms){const t=still?2.5:ms/1000;ctx.forEach(([k,x,w,h],i)=>{if(!vis.has(cs[i])&&!still)return;const tr=k=='worlds'||k=='gen';if(tr){x.globalCompositeOperation='destination-out';x.fillStyle='rgba(0,0,0,.2)';x.fillRect(0,0,w,h);x.globalCompositeOperation='lighter'}else x.clearRect(0,0,w,h);x.shadowColor=C;x.shadowBlur=12;try{draw[k](x,w,h,t)}catch(e){}x.shadowBlur=0;x.globalCompositeOperation='source-over'});if(!still)requestAnimationFrame(loop)}
-requestAnimationFrame(loop);
-})();
-</script>
+<script src="tools.js"></script>
 </body>
 </html>
