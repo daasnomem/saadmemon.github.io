@@ -163,6 +163,24 @@ a.tool-card:hover .card-arrow{opacity:1;transform:translate(0,0)}
 .tb:active{transform:scale(.96)}
 .tsep{width:6px}
 .tnote{font-family:var(--mono);font-size:9px;color:var(--dimmer)}
+
+#waveCanvas{opacity:1}
+.hero::before{opacity:.12}
+.hero-content{pointer-events:none}
+.hero-content a,.hero-content button{pointer-events:auto}
+.hero-title{font-size:clamp(56px,9vw,128px);letter-spacing:-4px;line-height:.92;display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}
+.hero-title small{font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--cyan);font-weight:400}
+.hero-sub{color:#8A9BAC;font-size:16px}
+.hero-ctas{display:flex;gap:10px;flex-wrap:wrap}
+.hero-cta.ghost{background:transparent;color:var(--cyan);border:0.5px solid var(--cyan-dim)}
+.hero-cta.ghost:hover{background:var(--cyan-dim);opacity:1}
+.hero-sound{position:absolute;top:84px;right:48px;z-index:3;display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);background:rgba(8,11,15,.6);border:0.5px solid var(--line);padding:8px 14px;cursor:pointer;transition:all .2s}
+.hero-sound i{width:7px;height:7px;border-radius:50%;background:var(--dimmer);transition:all .2s}
+.hero-sound:hover{color:var(--white);border-color:var(--cyan-dim)}
+.hero-sound.on{color:var(--cyan);border-color:var(--cyan-dim)}
+.hero-sound.on i{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.hero-hint{position:absolute;bottom:40px;right:48px;z-index:2;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
+@media(max-width:768px){.hero-sound{right:24px;top:76px}.hero-hint{display:none}.hero-title{letter-spacing:-2px}}
 </style>
 </head>
 <body>
@@ -193,16 +211,17 @@ a.tool-card:hover .card-arrow{opacity:1;transform:translate(0,0)}
 
 <section class="hero" id="home">
   <canvas id="waveCanvas"></canvas>
+  <button id="heroSound" class="hero-sound" type="button"><i></i><span>sound off · tap to play</span></button>
   <div class="hero-content">
-    <div class="hero-eyebrow">audio designer &amp; sound technologist</div>
-    <h1 class="hero-title">Sound design.<br><em>Music.</em><br>Interactive audio.</h1>
-    <p class="hero-sub">Game audio, music production, and sound design — made for games, film, and independent artists.</p>
-    <a href="#work" class="hero-cta">
-      <svg width="14" height="14" viewBox="0 0 14 14"><polygon points="3,1 13,7 3,13" fill="currentColor"/></svg>
-      watch the reel
-    </a>
+    <div class="hero-eyebrow">musician · sound designer · builder</div>
+    <h1 class="hero-title">Saad Memon<small>aka daasnomem</small></h1>
+    <p class="hero-sub">Music, sound for games and film, and the tools I play with.</p>
+    <div class="hero-ctas">
+      <a href="#work" class="hero-cta"><svg width="12" height="12" viewBox="0 0 14 14"><polygon points="3,1 13,7 3,13" fill="currentColor"/></svg>watch the reel</a>
+      <a href="#tools" class="hero-cta ghost">play the tools →</a>
+    </div>
   </div>
-  <div class="hero-scroll"><div class="scroll-line"></div><span>scroll</span></div>
+  <div class="hero-hint">move across the strings</div>
 </section>
 
 <section class="featured" id="work">
@@ -369,23 +388,6 @@ a.tool-card:hover .card-arrow{opacity:1;transform:translate(0,0)}
 </footer>
 
 <script>
-const canvas = document.getElementById('waveCanvas');
-const ctx = canvas.getContext('2d');
-let W, H, t = 0;
-function resize(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight}
-resize();
-window.addEventListener('resize',resize);
-function drawWave(){
-  ctx.clearRect(0,0,W,H);
-  [{freq:0.008,amp:0.08,speed:0.012,color:'#00C2CB',lw:1.5},{freq:0.005,amp:0.12,speed:0.007,color:'#00C2CB',lw:0.8},{freq:0.012,amp:0.05,speed:0.018,color:'#00C2CB',lw:0.5},{freq:0.003,amp:0.15,speed:0.004,color:'#1A6070',lw:1.0}].forEach(w=>{
-    ctx.beginPath();ctx.strokeStyle=w.color;ctx.lineWidth=w.lw;ctx.globalAlpha=0.6;
-    for(let x=0;x<=W;x+=2){const y=H*0.5+Math.sin(x*w.freq+t*w.speed)*H*w.amp+Math.sin(x*w.freq*0.5+t*w.speed*1.3)*H*w.amp*0.4;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
-    ctx.stroke();
-  });
-  ctx.globalAlpha=1;t++;
-  requestAnimationFrame(drawWave);
-}
-drawWave();
 
 window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',window.scrollY>20));
 
@@ -413,6 +415,7 @@ lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox()});
 </script>
 
+<script src="hero.js"></script>
 <script src="tools.js"></script>
 </body>
 </html>
